@@ -1,0 +1,16 @@
+# Node dependencies
+node_modules/
+npm-debug.log
+
+# Terraform local state & secrets
+*.tfstate
+*.tfstate.backup
+.terraform/
+.terraform.lock.hcl
+*.tfvars
+*.pem
+*.key
+
+# OS & Environment files
+.DS_Store
+.env

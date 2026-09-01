@@ -1,0 +1,49 @@
+steps:
+  # 1. Build worker container image
+  - name: 'gcr.io/cloud-builders/docker'
+    id: 'Build Worker Image'
+    args:
+      - 'build'
+      - '-t'
+      - 'gcr.io/$PROJECT_ID/sentinel-worker:${_TAG}'
+      - '-t'
+      - 'gcr.io/$PROJECT_ID/sentinel-worker:latest'
+      - '.'
+
+  # 2. Push worker image to GCR
+  - name: 'gcr.io/cloud-builders/docker'
+    id: 'Push Worker Image'
+    args:
+      - 'push'
+      - 'gcr.io/$PROJECT_ID/sentinel-worker:${_TAG}'
+
+  - name: 'gcr.io/cloud-builders/docker'
+    id: 'Push Latest Tag'
+    args:
+      - 'push'
+      - 'gcr.io/$PROJECT_ID/sentinel-worker:latest'
+
+  # 3. Deploy worker to Cloud Run as a continuous background service
+  - name: 'gcr.io/google.com/cloudsdktool/cloud-sdk'
+    id: 'Deploy Worker to Cloud Run'
+    entrypoint: gcloud
+    args:
+      - 'run'
+      - 'deploy'
+      - 'sentinel-worker'
+      - '--image=gcr.io/$PROJECT_ID/sentinel-worker:${_TAG}'
+      - '--region=us-central1'
+      - '--platform=managed'
+      - '--no-allow-unauthenticated'
+      - '--min-instances=1'
+      - '--set-env-vars=PUBSUB_SUBSCRIPTION=sentinel-scrape-jobs-sub'
+
+images:
+  - 'gcr.io/$PROJECT_ID/sentinel-worker:${_TAG}'
+  - 'gcr.io/$PROJECT_ID/sentinel-worker:latest'
+
+substitutions:
+  _TAG: 'latest'
+
+options:
+  logging: CLOUD_LOGGING_ONLY

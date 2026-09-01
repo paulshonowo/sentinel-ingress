@@ -1,0 +1,22 @@
+{
+  "name": "sentinel-ingress-api",
+  "version": "1.0.0",
+  "description": "OWASP-hardened Ingress API for SentinelIngest Web Scraping Pipeline",
+  "main": "server.js",
+  "scripts": {
+    "start": "node src/server.js",
+    "dev": "nodemon src/server.js"
+  },
+  "dependencies": {
+    "@google-cloud/pubsub": "^4.11.0",
+    "cors": "^2.8.6",
+    "dotenv": "^16.6.1",
+    "express": "^4.22.2",
+    "express-rate-limit": "^7.5.1",
+    "helmet": "^7.2.0",
+    "jsonwebtoken": "^9.0.3"
+  },
+  "devDependencies": {
+    "nodemon": "^3.1.14"
+  }
+}

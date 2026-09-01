@@ -1,0 +1,46 @@
+steps:
+  # 1. Build the container image using Dockerfile
+  - name: 'gcr.io/cloud-builders/docker'
+    id: 'Build Container Image'
+    args:
+      - 'build'
+      - '-t'
+      - 'gcr.io/$PROJECT_ID/sentinel-ingress:${_TAG}'
+      - '-t'
+      - 'gcr.io/$PROJECT_ID/sentinel-ingress:latest'
+      - '.'
+
+  # 2. Push the tagged image to Container Registry
+  - name: 'gcr.io/cloud-builders/docker'
+    id: 'Push Container Image'
+    args:
+      - 'push'
+      - 'gcr.io/$PROJECT_ID/sentinel-ingress:${_TAG}'
+
+  - name: 'gcr.io/cloud-builders/docker'
+    id: 'Push Latest Tag'
+    args:
+      - 'push'
+      - 'gcr.io/$PROJECT_ID/sentinel-ingress:latest'
+
+  # 3. Deploy new revision to Cloud Run
+  - name: 'gcr.io/google.com/cloudsdktool/cloud-sdk'
+    id: 'Deploy to Cloud Run'
+    entrypoint: gcloud
+    args:
+      - 'run'
+      - 'deploy'
+      - 'sentinel-ingress'
+      - '--image=gcr.io/$PROJECT_ID/sentinel-ingress:${_TAG}'
+      - '--region=us-central1'
+      - '--platform=managed'
+
+images:
+  - 'gcr.io/$PROJECT_ID/sentinel-ingress:${_TAG}'
+  - 'gcr.io/$PROJECT_ID/sentinel-ingress:latest'
+
+substitutions:
+  _TAG: 'latest'
+
+options:
+  logging: CLOUD_LOGGING_ONLY
